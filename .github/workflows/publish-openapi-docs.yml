@@ -6,7 +6,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'docs/openapi/**'
+      - 'game-vault-backend/docs/openapi/**'
       - '.github/workflows/publish-openapi-docs.yml'
   workflow_dispatch:
 
