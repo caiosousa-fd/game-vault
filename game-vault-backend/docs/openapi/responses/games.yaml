@@ -1,0 +1,204 @@
+components:
+  schemas:
+    GameSummary:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - title
+        - platform
+        - format
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        platform:
+          $ref: '../common/common.yaml#/components/schemas/PlatformSummary'
+        edition:
+          type:
+            - string
+            - 'null'
+          maxLength: 100
+        format:
+          $ref: '../common/common.yaml#/components/schemas/GameFormat'
+        status:
+          $ref: '../common/common.yaml#/components/schemas/GameStatus'
+        coverUrl:
+          type:
+            - string
+            - 'null'
+          format: uri
+          maxLength: 2048
+
+    GameSummaryPage:
+      type: object
+      additionalProperties: false
+      required:
+        - content
+        - page
+        - size
+        - totalElements
+        - totalPages
+        - first
+        - last
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameSummary'
+        page:
+          type: integer
+          minimum: 0
+        size:
+          type: integer
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          format: int64
+          minimum: 0
+        totalPages:
+          type: integer
+          minimum: 0
+        first:
+          type: boolean
+        last:
+          type: boolean
+
+    GameDetails:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - title
+        - platform
+        - region
+        - format
+        - hasBox
+        - hasManual
+        - status
+        - currency
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        platform:
+          $ref: '../common/common.yaml#/components/schemas/PlatformSummary'
+        edition:
+          type:
+            - string
+            - 'null'
+          maxLength: 100
+        region:
+          $ref: '../common/common.yaml#/components/schemas/Region'
+        format:
+          $ref: '../common/common.yaml#/components/schemas/GameFormat'
+        condition:
+          oneOf:
+            - $ref: '../common/common.yaml#/components/schemas/ItemCondition'
+            - type: 'null'
+          description: Null for digital games.
+        hasBox:
+          type: boolean
+          description: Always false for digital games.
+        hasManual:
+          type: boolean
+          description: Always false for digital games.
+        status:
+          $ref: '../common/common.yaml#/components/schemas/GameStatus'
+        purchaseDate:
+          type:
+            - string
+            - 'null'
+          format: date
+        purchasePrice:
+          type:
+            - number
+            - 'null'
+          minimum: 0
+          multipleOf: 0.01
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          default: EUR
+          example: EUR
+        coverUrl:
+          type:
+            - string
+            - 'null'
+          format: uri
+          maxLength: 2048
+        notes:
+          type:
+            - string
+            - 'null'
+          maxLength: 2000
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+  examples:
+    GameSummaryPage:
+      value:
+        content:
+          - id: e89ea45b-904f-44ed-8d1d-5a5d691d348a
+            title: LittleBigPlanet
+            platform:
+              id: a32c65c0-6459-4a87-9640-2ea9bbbc26ac
+              name: PlayStation 3
+            edition: Standard
+            format: PHYSICAL
+            status: COMPLETED
+            coverUrl: https://example.com/covers/littlebigplanet.jpg
+        page: 0
+        size: 20
+        totalElements: 1
+        totalPages: 1
+        first: true
+        last: true
+
+    EmptyGameSummaryPage:
+      value:
+        content: []
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        first: true
+        last: true
+
+    GameDetails:
+      value:
+        id: e89ea45b-904f-44ed-8d1d-5a5d691d348a
+        title: LittleBigPlanet
+        platform:
+          id: a32c65c0-6459-4a87-9640-2ea9bbbc26ac
+          name: PlayStation 3
+        edition: Standard
+        region: PAL
+        format: PHYSICAL
+        condition: VERY_GOOD
+        hasBox: true
+        hasManual: true
+        status: COMPLETED
+        purchaseDate: '2026-07-18'
+        purchasePrice: 8.50
+        currency: EUR
+        coverUrl: https://example.com/covers/littlebigplanet.jpg
+        notes: Portuguese cover
+        createdAt: '2026-08-22T10:15:30Z'
+        updatedAt: '2026-08-22T10:15:30Z'

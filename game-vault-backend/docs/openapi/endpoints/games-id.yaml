@@ -1,0 +1,77 @@
+parameters:
+  - $ref: '../common/common.yaml#/components/parameters/GameIdPath'
+
+get:
+  tags:
+    - games
+  summary: Get a game
+  description: Returns the complete details of one game copy.
+  operationId: getGame
+  responses:
+    '200':
+      description: Complete game details.
+      content:
+        application/json:
+          schema:
+            $ref: '../responses/games.yaml#/components/schemas/GameDetails'
+          examples:
+            game:
+              $ref: '../responses/games.yaml#/components/examples/GameDetails'
+    '400':
+      $ref: '../exceptions/exceptions.yaml#/components/responses/BadRequest'
+    '404':
+      $ref: '../exceptions/exceptions.yaml#/components/responses/GameNotFound'
+    '500':
+      $ref: '../exceptions/exceptions.yaml#/components/responses/InternalServerError'
+
+put:
+  tags:
+    - games
+  summary: Update a game
+  description: Updates all editable fields of an existing game copy.
+  operationId: updateGame
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../requests/games.yaml#/components/schemas/GameUpsertRequest'
+        examples:
+          physicalGame:
+            $ref: '../requests/games.yaml#/components/examples/PhysicalGameRequest'
+  responses:
+    '200':
+      description: Game updated.
+      content:
+        application/json:
+          schema:
+            $ref: '../responses/games.yaml#/components/schemas/GameDetails'
+          examples:
+            updatedGame:
+              $ref: '../responses/games.yaml#/components/examples/GameDetails'
+    '400':
+      $ref: '../exceptions/exceptions.yaml#/components/responses/BadRequest'
+    '404':
+      description: The game or selected platform does not exist.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../exceptions/exceptions.yaml#/components/schemas/ProblemDetails'
+    '500':
+      $ref: '../exceptions/exceptions.yaml#/components/responses/InternalServerError'
+
+delete:
+  tags:
+    - games
+  summary: Delete a game
+  description: Deletes only the selected game copy.
+  operationId: deleteGame
+  responses:
+    '204':
+      description: Game deleted. The response has no body.
+    '400':
+      $ref: '../exceptions/exceptions.yaml#/components/responses/BadRequest'
+    '404':
+      $ref: '../exceptions/exceptions.yaml#/components/responses/GameNotFound'
+    '500':
+      $ref: '../exceptions/exceptions.yaml#/components/responses/InternalServerError'

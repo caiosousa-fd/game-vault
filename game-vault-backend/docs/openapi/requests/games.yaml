@@ -1,0 +1,108 @@
+components:
+  schemas:
+    GameUpsertRequest:
+      type: object
+      additionalProperties: false
+      description: |
+        For physical games, condition, hasBox, and hasManual are required.
+        For digital games, condition must be null or omitted and hasBox and
+        hasManual must be false. Currency is required when purchasePrice is
+        supplied.
+      required:
+        - title
+        - platformId
+        - region
+        - format
+        - status
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        platformId:
+          type: string
+          format: uuid
+        edition:
+          type:
+            - string
+            - 'null'
+          maxLength: 100
+        region:
+          $ref: '../common/common.yaml#/components/schemas/Region'
+        format:
+          $ref: '../common/common.yaml#/components/schemas/GameFormat'
+        condition:
+          oneOf:
+            - $ref: '../common/common.yaml#/components/schemas/ItemCondition'
+            - type: 'null'
+        hasBox:
+          type: boolean
+          default: false
+        hasManual:
+          type: boolean
+          default: false
+        status:
+          $ref: '../common/common.yaml#/components/schemas/GameStatus'
+        purchaseDate:
+          type:
+            - string
+            - 'null'
+          format: date
+          description: Must not be in the future.
+        purchasePrice:
+          type:
+            - number
+            - 'null'
+          minimum: 0
+          multipleOf: 0.01
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          default: EUR
+          example: EUR
+        coverUrl:
+          type:
+            - string
+            - 'null'
+          format: uri
+          maxLength: 2048
+        notes:
+          type:
+            - string
+            - 'null'
+          maxLength: 2000
+
+  examples:
+    PhysicalGameRequest:
+      value:
+        title: LittleBigPlanet
+        platformId: a32c65c0-6459-4a87-9640-2ea9bbbc26ac
+        edition: Standard
+        region: PAL
+        format: PHYSICAL
+        condition: VERY_GOOD
+        hasBox: true
+        hasManual: true
+        status: COMPLETED
+        purchaseDate: '2026-07-18'
+        purchasePrice: 8.50
+        currency: EUR
+        coverUrl: https://example.com/covers/littlebigplanet.jpg
+        notes: Portuguese cover
+
+    DigitalGameRequest:
+      value:
+        title: Hades
+        platformId: 714ef6d3-d26f-4a2f-9013-b9a409370bf5
+        edition: null
+        region: REGION_FREE
+        format: DIGITAL
+        condition: null
+        hasBox: false
+        hasManual: false
+        status: BACKLOG
+        purchaseDate: '2026-08-01'
+        purchasePrice: 12.49
+        currency: EUR
+        coverUrl: https://example.com/covers/hades.jpg
+        notes: null
