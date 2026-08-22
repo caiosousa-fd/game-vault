@@ -1,13 +1,20 @@
-name: PR Checks
+name: Backend Checks
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+    paths:
+      - 'game-vault-backend/**'
+      - '.github/workflows/backend-checks.yml'
 
 jobs:
   build:
     name: Compile & Unit Tests
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: game-vault-backend
 
     steps:
       - name: Checkout
