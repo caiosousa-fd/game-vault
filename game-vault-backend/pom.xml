@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>4.1.1</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+	<groupId>com</groupId>
+	<artifactId>game-vault</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+	<name>game-vault</name>
+	<description>Game Vault</description>
+    <modules>
+        <module>game-vault-api</module>
+		<module>game-vault-core</module>
+		<module>game-vault-output</module>
+		<module>game-vault-application</module>
+		<module>game-vault-testing</module>
+	</modules>
+
+	<properties>
+		<java.version>25</java.version>
+
+		<!-- RPM -->
+		<rpm.version>0.0.1</rpm.version>
+
+		<!-- Plugins Versions -->
+		<maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
+		<checkstyle.version>10.21.4</checkstyle.version>
+		<jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
+
+		<!-- Compilation Flags -->
+		<disablePluginsVerifications>false</disablePluginsVerifications>
+
+		<!-- JaCoCo -->
+		<jacoco.lineRatio>0.8</jacoco.lineRatio>
+		<jacoco.classRatio>0.8</jacoco.classRatio>
+		<jacoco.instructionRatio>0.8</jacoco.instructionRatio>
+		<jacoco.methodRatio>0.8</jacoco.methodRatio>
+		<jacoco.branchRatio>0.8</jacoco.branchRatio>
+		<jacoco.complexityRatio>0.8</jacoco.complexityRatio>
+
+		<maven-surefire-plugin.excludedGroups>ComponentTest</maven-surefire-plugin.excludedGroups>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- Project Dependencies -->
+			<dependency>
+				<groupId>com</groupId>
+				<artifactId>game-vault-api</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com</groupId>
+				<artifactId>game-vault-core</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com</groupId>
+				<artifactId>game-vault-output</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com</groupId>
+				<artifactId>game-vault-application</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-enforcer-plugin</artifactId>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-checkstyle-plugin</artifactId>
+					<version>${maven-checkstyle-plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>${jacoco-maven-plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<argLine>@{argLine} -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar</argLine>
+					<excludedGroups>${maven-surefire-plugin.excludedGroups}</excludedGroups>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>enforce</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<skip>${disablePluginsVerifications}</skip>
+					<rules>
+						<banDistributionManagement/>
+						<banDuplicatePomDependencyVersions/>
+						<dependencyConvergence/>
+						<reactorModuleConvergence/>
+						<requireProfileIdsExist/>
+						<requireReleaseDeps>
+							<excludes>
+								<!-- Exclude Game Vault modules from this requirement to enable SNAPSHOT parent referencing -->
+								<exclude>com:game-vault:*</exclude>
+								<exclude>com:game-vault-application:*</exclude>
+								<exclude>com:game-vault-core:*</exclude>
+								<exclude>com:game-vault-output:*</exclude>
+								<exclude>com:game-vault-testing:*</exclude>
+							</excludes>
+						</requireReleaseDeps>
+					</rules>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>analyze</id>
+						<goals>
+							<goal>analyze-only</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<skip>${disablePluginsVerifications}</skip>
+					<failOnWarning>true</failOnWarning>
+					<ignoredUnusedDeclaredDependencies>
+						<!-- Spring Boot starters aggregate transitive dependencies, so the analyzer
+						     reports the starter artifact itself as unused. -->
+						<ignoredUnusedDeclaredDependency>org.springframework.boot:spring-boot-starter-web</ignoredUnusedDeclaredDependency>
+						<ignoredUnusedDeclaredDependency>org.springframework.boot:spring-boot-starter-test</ignoredUnusedDeclaredDependency>
+					</ignoredUnusedDeclaredDependencies>
+					<ignoredUsedUndeclaredDependencies>
+						<!-- Dependencies pulled in transitively via Spring Boot starters and used
+						     directly. Managed by the spring-boot-starter-parent BOM. -->
+						<ignoredUsedUndeclaredDependency>org.springframework:spring-context</ignoredUsedUndeclaredDependency>
+						<ignoredUsedUndeclaredDependency>org.springframework.boot:spring-boot</ignoredUsedUndeclaredDependency>
+						<ignoredUsedUndeclaredDependency>org.springframework.boot:spring-boot-autoconfigure</ignoredUsedUndeclaredDependency>
+					</ignoredUsedUndeclaredDependencies>
+					<ignoredNonTestScopedDependencies>
+					</ignoredNonTestScopedDependencies>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>verify-style</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<skip>${disablePluginsVerifications}</skip>
+					<configLocation>checkstyle.xml</configLocation>
+					<suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
+					<violationSeverity>warning</violationSeverity>
+					<includeTestSourceDirectory>true</includeTestSourceDirectory>
+					<failOnViolation>true</failOnViolation>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>com.puppycrawl.tools</groupId>
+						<artifactId>checkstyle</artifactId>
+						<version>${checkstyle.version}</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>jacoco-check</id>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<configuration>
+							<skip>${disablePluginsVerifications}</skip>
+							<rules>
+								<rule>
+									<element>PACKAGE</element>
+									<limits>
+										<limit>
+											<counter>LINE</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>${jacoco.lineRatio}</minimum>
+										</limit>
+										<limit>
+											<counter>CLASS</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>${jacoco.classRatio}</minimum>
+										</limit>
+										<limit>
+											<counter>INSTRUCTION</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>${jacoco.instructionRatio}</minimum>
+										</limit>
+										<limit>
+											<counter>METHOD</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>${jacoco.methodRatio}</minimum>
+										</limit>
+										<limit>
+											<counter>BRANCH</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>${jacoco.branchRatio}</minimum>
+										</limit>
+										<limit>
+											<counter>COMPLEXITY</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>${jacoco.complexityRatio}</minimum>
+										</limit>
+									</limits>
+								</rule>
+							</rules>
+							<excludes>
+								<!-- Exclude classes that we cannot test such as Launcher -->
+								<exclude>com/gamevault/application/GameVaultApplication.class</exclude>
+							</excludes>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<!--
+                        This comes from spring-boot-starter-parent, but it should be disabled for all modules
+                        unless blc-application which is the module containing the entry point class tagged
+                        with the SpringBootApplication annotation. We disable it here for all modules by default
+                        and override this configuration only on the blc-application module.
+                    -->
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>componentTests</id>
+			<properties>
+				<maven-surefire-plugin.excludedGroups/>
+			</properties>
+		</profile>
+	</profiles>
+
+</project>
