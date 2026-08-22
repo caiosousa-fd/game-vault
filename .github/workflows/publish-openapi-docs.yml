@@ -36,10 +36,48 @@ jobs:
       - name: Render and bundle OpenAPI docs
         run: |
           mkdir -p site
-          # Self-contained HTML docs site (Redoc).
-          npx -y @redocly/cli@2.47.0 build-docs game-vault-backend/docs/openapi/openapi.yaml -o site/index.html
-          # Also publish the bundled, machine-readable spec alongside the docs.
+          # Publish the bundled, machine-readable spec that the docs UI loads.
           npx -y @redocly/cli@2.47.0 bundle game-vault-backend/docs/openapi/openapi.yaml -o site/openapi.yaml
+          # Self-contained Swagger UI docs site: vendor the static assets so the
+          # page renders without any runtime CDN dependency.
+          npm install swagger-ui-dist@5.17.14
+          cp node_modules/swagger-ui-dist/swagger-ui.css site/
+          cp node_modules/swagger-ui-dist/swagger-ui-bundle.js site/
+          cp node_modules/swagger-ui-dist/swagger-ui-standalone-preset.js site/
+          cp node_modules/swagger-ui-dist/favicon-32x32.png site/
+          cp node_modules/swagger-ui-dist/favicon-16x16.png site/
+          cat > site/index.html <<'HTML'
+          <!DOCTYPE html>
+          <html lang="en">
+            <head>
+              <meta charset="UTF-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1" />
+              <title>Game Vault API</title>
+              <link rel="stylesheet" href="./swagger-ui.css" />
+              <link rel="icon" type="image/png" href="./favicon-32x32.png" sizes="32x32" />
+              <link rel="icon" type="image/png" href="./favicon-16x16.png" sizes="16x16" />
+            </head>
+            <body>
+              <div id="swagger-ui"></div>
+              <script src="./swagger-ui-bundle.js" charset="UTF-8"></script>
+              <script src="./swagger-ui-standalone-preset.js" charset="UTF-8"></script>
+              <script>
+                window.onload = () => {
+                  window.ui = SwaggerUIBundle({
+                    url: './openapi.yaml',
+                    dom_id: '#swagger-ui',
+                    deepLinking: true,
+                    presets: [
+                      SwaggerUIBundle.presets.apis,
+                      SwaggerUIStandalonePreset,
+                    ],
+                    layout: 'StandaloneLayout',
+                  });
+                };
+              </script>
+            </body>
+          </html>
+          HTML
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
