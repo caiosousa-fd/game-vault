@@ -37,9 +37,9 @@ jobs:
         run: |
           mkdir -p site
           # Self-contained HTML docs site (Redoc).
-          npx -y @redocly/cli@2.47.0 build-docs docs/openapi/openapi.yaml -o site/index.html
+          npx -y @redocly/cli@2.47.0 build-docs game-vault-backend/docs/openapi/openapi.yaml -o site/index.html
           # Also publish the bundled, machine-readable spec alongside the docs.
-          npx -y @redocly/cli@2.47.0 bundle docs/openapi/openapi.yaml -o site/openapi.yaml
+          npx -y @redocly/cli@2.47.0 bundle game-vault-backend/docs/openapi/openapi.yaml -o site/openapi.yaml
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
