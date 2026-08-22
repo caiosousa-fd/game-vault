@@ -1,0 +1,106 @@
+components:
+  schemas:
+    ProblemDetails:
+      type: object
+      description: RFC 9457-style problem details.
+      required:
+        - type
+        - title
+        - status
+        - detail
+        - instance
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+          minimum: 400
+          maximum: 599
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri-reference
+      additionalProperties: true
+
+    ValidationProblemDetails:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetails'
+        - type: object
+          properties:
+            errors:
+              type: object
+              additionalProperties:
+                type: string
+
+  responses:
+    BadRequest:
+      description: The request contains an invalid path, query, or body value.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ValidationProblemDetails'
+          examples:
+            validationFailed:
+              $ref: '#/components/examples/ValidationProblem'
+
+    GameNotFound:
+      description: The requested game does not exist.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          examples:
+            gameNotFound:
+              $ref: '#/components/examples/GameNotFound'
+
+    PlatformNotFound:
+      description: The referenced platform does not exist.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          examples:
+            platformNotFound:
+              $ref: '#/components/examples/PlatformNotFound'
+
+    InternalServerError:
+      description: An unexpected server error occurred.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          examples:
+            unexpectedError:
+              $ref: '#/components/examples/InternalServerError'
+
+  examples:
+    ValidationProblem:
+      value:
+        title: Validation failed
+        status: 400
+        detail: One or more fields are invalid.
+        errors:
+          title: must not be blank
+          purchasePrice: must be greater than or equal to zero
+
+    GameNotFound:
+      value:
+        title: Game not found
+        status: 404
+        detail: No game exists with the supplied identifier.
+
+    PlatformNotFound:
+      value:
+        title: Platform not found
+        status: 404
+        detail: No platform exists with the supplied identifier.
+
+    InternalServerError:
+      value:
+        title: Internal server error
+        status: 500
+        detail: An unexpected error occurred.

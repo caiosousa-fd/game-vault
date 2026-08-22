@@ -1,0 +1,58 @@
+name: Publish OpenAPI Docs
+
+# Renders the authored OpenAPI spec to a static docs site and publishes it to GitHub Pages.
+# No running service is involved — the spec is bundled and rendered entirely in CI.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/openapi/**'
+      - '.github/workflows/publish-openapi-docs.yml'
+  workflow_dispatch:
+
+# Permissions required by the GitHub Pages deployment actions.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one Pages deployment at a time; newer runs supersede in-progress ones.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Render and bundle OpenAPI docs
+        run: |
+          mkdir -p site
+          # Self-contained HTML docs site (Redoc).
+          npx -y @redocly/cli@2.47.0 build-docs docs/openapi/openapi.yaml -o site/index.html
+          # Also publish the bundled, machine-readable spec alongside the docs.
+          npx -y @redocly/cli@2.47.0 bundle docs/openapi/openapi.yaml -o site/openapi.yaml
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

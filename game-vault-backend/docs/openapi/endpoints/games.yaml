@@ -1,0 +1,61 @@
+get:
+  tags:
+    - games
+  summary: Get games
+  description: Returns a paginated list of compact game summaries.
+  operationId: getGames
+  parameters:
+    - $ref: '../common/common.yaml#/components/parameters/GameQuery'
+    - $ref: '../common/common.yaml#/components/parameters/PlatformIdQuery'
+    - $ref: '../common/common.yaml#/components/parameters/GameFormatQuery'
+    - $ref: '../common/common.yaml#/components/parameters/GameStatusQuery'
+    - $ref: '../common/common.yaml#/components/parameters/RegionQuery'
+    - $ref: '../common/common.yaml#/components/parameters/ConditionQuery'
+    - $ref: '../common/common.yaml#/components/parameters/HasBoxQuery'
+    - $ref: '../common/common.yaml#/components/parameters/HasManualQuery'
+    - $ref: '../common/common.yaml#/components/parameters/PageQuery'
+    - $ref: '../common/common.yaml#/components/parameters/SizeQuery'
+    - $ref: '../common/common.yaml#/components/parameters/SortQuery'
+  responses:
+    '200':
+      description: Paginated game summaries.
+      content:
+        application/json:
+          schema:
+            $ref: '../responses/games.yaml#/components/schemas/GameSummaryPage'
+          examples:
+            oneResult:
+              $ref: '../responses/games.yaml#/components/examples/GameSummaryPage'
+            emptyResult:
+              $ref: '../responses/games.yaml#/components/examples/EmptyGameSummaryPage'
+    '400':
+      $ref: '../exceptions/exceptions.yaml#/components/responses/BadRequest'
+    '500':
+      $ref: '../exceptions/exceptions.yaml#/components/responses/InternalServerError'
+
+post:
+  tags:
+    - games
+  summary: Add a game
+  description: Adds a game copy to the collection.
+  operationId: addGame
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../requests/games.yaml#/components/schemas/GameUpsertRequest'
+        examples:
+          physicalGame:
+            $ref: '../requests/games.yaml#/components/examples/PhysicalGameRequest'
+          digitalGame:
+            $ref: '../requests/games.yaml#/components/examples/DigitalGameRequest'
+  responses:
+    '200':
+      description: Game added.
+    '400':
+      $ref: '../exceptions/exceptions.yaml#/components/responses/BadRequest'
+    '404':
+      $ref: '../exceptions/exceptions.yaml#/components/responses/PlatformNotFound'
+    '500':
+      $ref: '../exceptions/exceptions.yaml#/components/responses/InternalServerError'
