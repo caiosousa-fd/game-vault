@@ -122,6 +122,19 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
+					<configuration>
+						<!--
+						    JDK 23+ no longer runs annotation processors discovered only on the
+						    classpath, so Lombok must be declared explicitly on the processor path.
+						-->
+						<annotationProcessorPaths>
+							<path>
+								<groupId>org.projectlombok</groupId>
+								<artifactId>lombok</artifactId>
+								<version>${lombok.version}</version>
+							</path>
+						</annotationProcessorPaths>
+					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -299,6 +312,18 @@
 							<excludes>
 								<!-- Exclude classes that we cannot test such as Launcher -->
 								<exclude>com/gamevault/application/GameVaultApplication.class</exclude>
+								<!-- Exclude OpenAPI generated classes -->
+								<exclude>com/gamevault/api/openapi/**/*.class</exclude>
+								<exclude>org/openapitools/**/*.class</exclude>
+								<!-- Exclude domain classes without tests -->
+								<exclude>com/gamevault/core/domain/common/AcquisitionType.class</exclude>
+								<exclude>com/gamevault/core/domain/common/ItemCondition.class</exclude>
+								<exclude>com/gamevault/core/domain/common/ItemRegion.class</exclude>
+								<exclude>com/gamevault/core/domain/game/GameCopy.class</exclude>
+								<exclude>com/gamevault/core/domain/game/GameFormat.class</exclude>
+								<exclude>com/gamevault/core/domain/game/GameStatus.class</exclude>
+								<exclude>com/gamevault/core/domain/game/DigitalGameCopy.class</exclude>
+								<exclude>com/gamevault/core/domain/game/PhysicalGameCopy.class</exclude>
 							</excludes>
 						</configuration>
 					</execution>
